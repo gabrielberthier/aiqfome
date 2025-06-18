@@ -1,6 +1,5 @@
 import { eq } from "drizzle-orm";
-import * as HttpStatusCodes from "stoker/http-status-codes";
-import * as HttpStatusPhrases from "stoker/http-status-phrases";
+import * as StatusCode from "src/http/status-code";
 
 import type { AppRouteHandler } from "@/lib/types";
 
@@ -18,7 +17,7 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
   const task = c.req.valid("json");
   const [inserted] = await db.insert(tasks).values(task).returning();
-  return c.json(inserted, HttpStatusCodes.OK);
+  return c.json(inserted, StatusCode.OK);
 };
 
 export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
@@ -32,13 +31,13 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
   if (!task) {
     return c.json(
       {
-        message: HttpStatusPhrases.NOT_FOUND,
+        message: "NotFound",
       },
-      HttpStatusCodes.NOT_FOUND,
+      StatusCode.NOT_FOUND,
     );
   }
 
-  return c.json(task, HttpStatusCodes.OK);
+  return c.json(task, StatusCode.OK);
 };
 
 export const patch: AppRouteHandler<PatchRoute> = async (c) => {
@@ -54,13 +53,13 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
             {
               code: ZOD_ERROR_CODES.INVALID_UPDATES,
               path: [],
-              message: ZOD_ERROR_MESSAGES.NO_UPDATES,
+              message: "No Updates",
             },
           ],
           name: "ZodError",
         },
       },
-      HttpStatusCodes.UNPROCESSABLE_ENTITY,
+      StatusCode.UNPROCESSABLE_ENTITY,
     );
   }
 
@@ -72,13 +71,13 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
   if (!task) {
     return c.json(
       {
-        message: HttpStatusPhrases.NOT_FOUND,
+        message: "NotFound",
       },
-      HttpStatusCodes.NOT_FOUND,
+      StatusCode.NOT_FOUND,
     );
   }
 
-  return c.json(task, HttpStatusCodes.OK);
+  return c.json(task, StatusCode.OK);
 };
 
 export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
@@ -89,11 +88,11 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
   if (result.rowsAffected === 0) {
     return c.json(
       {
-        message: HttpStatusPhrases.NOT_FOUND,
+        message: StatusCode.NOT_FOUND,
       },
-      HttpStatusCodes.NOT_FOUND,
+      StatusCode.NOT_FOUND,
     );
   }
 
-  return c.body(null, HttpStatusCodes.NO_CONTENT);
+  return c.body(null, StatusCode.NO_CONTENT);
 };
