@@ -1,4 +1,3 @@
-/* eslint-disable ts/ban-ts-comment */
 import { z } from "@hono/zod-openapi";
 import { describe, expect, it } from "vitest";
 
@@ -12,9 +11,9 @@ describe("jsonContentOneOf", () => {
     const oneOf = result.content["application/json"].schema.oneOf;
     expect(oneOf.length).toBe(1);
     const definition = oneOf[0];
-    // @ts-expect-error
+
     expect(definition.type).toBe("object");
-    // @ts-expect-error
+
     expect(definition.properties.message).toBeDefined();
   });
 
@@ -31,15 +30,15 @@ describe("jsonContentOneOf", () => {
     const oneOf = result.content["application/json"].schema.oneOf;
     expect(oneOf.length).toBe(2);
     const definition1 = oneOf[0];
-    // @ts-expect-error
+
     expect(definition1.type).toBe("object");
-    // @ts-expect-error
+
     expect(definition1.properties.message).toBeDefined();
 
     const definition2 = oneOf[1];
-    // @ts-expect-error
+
     expect(definition2.type).toBe("object");
-    // @ts-expect-error
+
     expect(definition2.properties.error).toBeDefined();
   });
 });

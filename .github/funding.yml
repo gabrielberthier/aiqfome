@@ -1,3 +1,42 @@
-github: CodingGarden
-patreon: CodingGarden
-custom: ["https://streamlabs.com/codinggarden/tip", "https://twitch.tv/products/codinggarden", "https://www.youtube.com/codinggarden/join"]
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install
+      - run: pnpm test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install
+      - name: Deploy to Hono
+        run: pnpm run deploy
+        env:
+        # Add your deployment secrets here, e.g.:
+        # HONO_API_KEY: ${{ secrets.HONO_API_KEY }}

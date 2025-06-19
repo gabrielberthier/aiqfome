@@ -14,4 +14,6 @@ const db = drizzle(client, {
   schema,
 });
 
+export type DbType = typeof db;
+
 export default db;

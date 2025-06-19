@@ -1,11 +1,11 @@
 import { eq } from "drizzle-orm";
-import * as StatusCode from "src/http/status-code";
 
 import type { AppRouteHandler } from "@/lib/types";
 
-import db from "@/db";
-import { tasks } from "@/db/schema";
+import db from "@/db/libsql";
+import { tasks } from "@/db/libsql/schema";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/lib/constants";
+import * as StatusCode from "src/http/status-code";
 
 import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } from "./tasks.routes";
 

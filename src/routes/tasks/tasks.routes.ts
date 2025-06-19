@@ -1,11 +1,12 @@
 import { createRoute, z } from "@hono/zod-openapi";
-import * as HttpStatusCodes from "src/http/status-code";
+import { describeRoute } from "hono-openapi";
+import { resolver, validator as zValidator } from "hono-openapi/zod";
 
-
-import { insertTasksSchema, patchTasksSchema, selectTasksSchema } from "@/db/schema";
-import { notFoundSchema } from "@/lib/constants";
+import { insertTasksSchema, patchTasksSchema, selectTasksSchema, tasks } from "@/db/libsql/schema";
 import { jsonContent, jsonContentRequired } from "@/http/openapi/helpers";
 import { createErrorSchema, IdParamsSchema } from "@/http/openapi/schemas";
+import { notFoundSchema } from "@/lib/constants";
+import * as HttpStatusCodes from "src/http/status-code";
 
 const tags = ["Tasks"];
 
@@ -25,15 +26,25 @@ export const create = createRoute({
   path: "/tasks",
   method: "post",
   request: {
-    body: jsonContentRequired(
-      insertTasksSchema,
-      "The task to create",
-    ),
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            name: z.string(),
+            done: z.boolean().optional(),
+          }),
+        },
+
+      },
+      required: true,
+    },
   },
   tags,
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectTasksSchema,
+      z.object({
+        id: z.number(),
+      }),
       "The created task",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(

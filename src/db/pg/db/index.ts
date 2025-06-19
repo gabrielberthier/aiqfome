@@ -1,18 +1,21 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from "postgres";
-import * as schema from '@/db/schema';
+import { drizzle } from "drizzle-orm/node-postgres";
+import pg from "pg";
+
 import env from "@/env";
 
-export const connection = postgres(env.DATABASE_URL, {
-  max: (env.DB_MIGRATING || env.DB_SEEDING) ? 1 : undefined,
-  onnotice: env.DB_SEEDING ? () => {} : undefined,
-});
+import * as schema from "./schema";
 
-export const db = drizzle(connection, {
+// Use pg driver.
+const { Pool } = pg;
+
+// Instantiate Drizzle client with pg driver and schema.
+export const db = drizzle({
+  client: new Pool({
+    connectionString: env.DATABASE_URL,
+    max: env.DB_SEEDING ? 1 : undefined,
+  }),
+  casing: "snake_case",
   schema,
-  logger: true,
 });
 
-export type db = typeof db;
-
-export default db;
+export type DbType = typeof db;

@@ -1,14 +1,16 @@
 /* eslint-disable ts/ban-ts-comment */
+import type { ZodError } from "zod/v4";
+
 import { testClient } from "hono/testing";
 import { execSync } from "node:child_process";
 import fs from "node:fs";
-import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { afterAll, beforeAll, describe, expect, expectTypeOf, it } from "vitest";
 import { ZodIssueCode } from "zod";
 
 import env from "@/env";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/lib/constants";
 import { createTestApp } from "@/lib/create-app";
+import * as HttpStatusPhrases from "src/http/status-code";
 
 import router from "./tasks.index";
 
@@ -29,14 +31,13 @@ describe("tasks routes", () => {
 
   it("post /tasks validates the body when creating", async () => {
     const response = await client.tasks.$post({
-      // @ts-expect-error
       json: {
         done: false,
       },
     });
     expect(response.status).toBe(422);
     if (response.status === 422) {
-      const json = await response.json();
+      const json = await response.json() as { error: ZodError };
       expect(json.error.issues[0].path[0]).toBe("name");
       expect(json.error.issues[0].message).toBe(ZOD_ERROR_MESSAGES.REQUIRED);
     }
@@ -54,7 +55,7 @@ describe("tasks routes", () => {
     });
     expect(response.status).toBe(200);
     if (response.status === 200) {
-      const json = await response.json();
+      const json = await response.json() as { name: string; done: boolean };
       expect(json.name).toBe(name);
       expect(json.done).toBe(false);
     }
@@ -73,7 +74,6 @@ describe("tasks routes", () => {
   it("get /tasks/{id} validates the id param", async () => {
     const response = await client.tasks[":id"].$get({
       param: {
-        // @ts-expect-error
         id: "wat",
       },
     });
