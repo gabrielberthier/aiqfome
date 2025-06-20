@@ -1,19 +1,20 @@
-import { describe, expect, it, afterAll, beforeAll, beforeEach, afterEach, } from "vitest";
+import type { StartedPostgreSqlContainer } from "@testcontainers/postgresql";
+import type { Table } from "drizzle-orm";
 
 import { PostgreSqlContainer } from "@testcontainers/postgresql";
-import type { StartedPostgreSqlContainer } from "@testcontainers/postgresql";
-import { DbType } from "../";
-
+import { getTableName, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
-import * as schema from "../schema";
-import { getTableName, sql, Table } from "drizzle-orm";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
+import { Pool } from "pg";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { default as config } from "src/../drizzle.config";
 
+import type { DbType } from "../";
 
-const createDb = (databaseUrl: string) => {
+import * as schema from "../schema";
+
+function createDb(databaseUrl: string) {
     return drizzle({
         client: new Pool({
             connectionString: databaseUrl,
@@ -26,16 +27,16 @@ const createDb = (databaseUrl: string) => {
 
 async function resetTable(db: DbType, table: Table) {
     return db.execute(
-        sql.raw(`TRUNCATE TABLE ${getTableName(table)} RESTART IDENTITY CASCADE`)
+        sql.raw(`TRUNCATE TABLE ${getTableName(table)} RESTART IDENTITY CASCADE`),
     );
 }
 
-describe("Schema tests", () => {
+describe("schema tests", () => {
     let postgresContainer: StartedPostgreSqlContainer;
     let db: DbType;
 
     beforeAll(async () => {
-        postgresContainer = await new PostgreSqlContainer('postgres:17').start();
+        postgresContainer = await new PostgreSqlContainer("postgres:17").start();
         const connectionString = postgresContainer.getConnectionUri();
         console.log(connectionString);
 
@@ -67,9 +68,9 @@ describe("Schema tests", () => {
 
     it("should create and return multiple clients", async () => {
         const res = await db.insert(schema.client).values({
-            email: 'gabo@magaluv.com',
-            name: 'Gabo Berfier'
-        }).returning()
+            email: "gabo@magaluv.com",
+            name: "Gabo Berfier",
+        }).returning();
         // const res = await db.query.client.findFirst()
 
         expect(res[0].name).toEqual("Gabo Berfier");
