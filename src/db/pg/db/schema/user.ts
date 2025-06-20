@@ -23,7 +23,7 @@ const user = pgTable("users", {
   password: varchar("password", { length: 255 }).notNull(),
   createdAt: timestamp("created_at", { mode: "string" }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { mode: "string" }).notNull().defaultNow(),
-  role: roles().notNull().default("REGULAR"),
+  role: varchar().default("REGULAR").notNull(),
 });
 
 // export const userRelations = relations(user, ({ many }) => ({

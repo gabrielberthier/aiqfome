@@ -6,14 +6,13 @@ import product from "./product";
 const favourite = pgTable("favourites", {
     id: serial("id").primaryKey(),
 
-    productId: integer().references(() => product.id, {
+    productId: integer("product_id").references(() => product.id, {
         onDelete: "cascade",
     }),
 
-    clientId: integer().references(() => client.id, {
+    clientId: integer("client_id").references(() => client.id, {
         onDelete: "cascade",
     }),
 });
-
 
 export default favourite;

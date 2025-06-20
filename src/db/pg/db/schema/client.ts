@@ -9,11 +9,6 @@ import {
 
 import favourite from "./favourite";
 
-export const roles = pgEnum("roles", [
-    "ADMIN",
-    "REGULAR",
-]);
-
 const client = pgTable("clients", {
     id: serial("id").primaryKey(),
     name: varchar("name", { length: 255 }).notNull(),

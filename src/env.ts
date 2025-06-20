@@ -15,7 +15,7 @@ const EnvSchema = z.object({
   NODE_ENV: z.string().default("development"),
   PORT: z.coerce.number().default(8000),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
-  DATABASE_URL: z.string().url().default("postgres://postgres:password@db:5432/hono"),
+  DATABASE_URL: z.string().url().default("postgres://postgres:password@localhost:5432/hono"),
   DATABASE_AUTH_TOKEN: z.string().optional(),
   DB_MIGRATING: z.coerce.boolean(),
   DB_SEEDING: z.coerce.boolean(),
