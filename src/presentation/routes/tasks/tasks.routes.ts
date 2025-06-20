@@ -90,7 +90,7 @@ export const patch = createRoute({
   tags,
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectTasksSchema,
+      selectTasksSchema.type,
       "The updated task",
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(

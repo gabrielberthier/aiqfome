@@ -1,11 +1,16 @@
-import { relations } from "drizzle-orm";
 import {
   boolean,
+  pgEnum,
   pgTable,
   serial,
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
+
+export const roles = pgEnum("roles", [
+  "ADMIN",
+  "REGULAR",
+]);
 
 const user = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -18,6 +23,7 @@ const user = pgTable("users", {
   password: varchar("password", { length: 255 }).notNull(),
   createdAt: timestamp("created_at", { mode: "string" }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { mode: "string" }).notNull().defaultNow(),
+  role: roles().notNull().default("REGULAR"),
 });
 
 // export const userRelations = relations(user, ({ many }) => ({

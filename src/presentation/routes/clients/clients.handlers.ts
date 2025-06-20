@@ -1,0 +1,100 @@
+import { eq } from "drizzle-orm";
+
+import type { AppRouteHandler } from "@/lib/types";
+
+import { user } from "@/db/pg/db/schema";
+import { db } from "@/db/pg/db";
+import { ZOD_ERROR_CODES } from "@/lib/constants";
+import * as StatusCode from "src/http/status-code";
+
+import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } from "./clients.routes";
+
+export const list: AppRouteHandler<ListRoute> = async (c) => {
+  const tasks = await db.query.user.findMany();
+  return c.json(tasks);
+};
+
+export const create: AppRouteHandler<CreateRoute> = async (c) => {
+  const task = c.req.valid("json");
+  const [inserted] = await db.insert(user).values({
+
+  }).returning();
+  return c.json(inserted, StatusCode.OK);
+};
+
+export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
+  const { id } = c.req.valid("param");
+  const task = await db.query.tasks.findFirst({
+    where(fields, operators) {
+      return operators.eq(fields.id, id);
+    },
+  });
+
+  if (!task) {
+    return c.json(
+      {
+        message: "NotFound",
+      },
+      StatusCode.NOT_FOUND,
+    );
+  }
+
+  return c.json(task, StatusCode.OK);
+};
+
+export const patch: AppRouteHandler<PatchRoute> = async (c) => {
+  const { id } = c.req.valid("param");
+  const updates = c.req.valid("json");
+
+  if (Object.keys(updates).length === 0) {
+    return c.json(
+      {
+        success: false,
+        error: {
+          issues: [
+            {
+              code: ZOD_ERROR_CODES.INVALID_UPDATES,
+              path: [],
+              message: "No Updates",
+            },
+          ],
+          name: "ZodError",
+        },
+      },
+      StatusCode.UNPROCESSABLE_ENTITY,
+    );
+  }
+
+  const [task] = await db.update(tasks)
+    .set(updates)
+    .where(eq(tasks.id, id))
+    .returning();
+
+  if (!task) {
+    return c.json(
+      {
+        message: "NotFound",
+      },
+      StatusCode.NOT_FOUND,
+    );
+  }
+
+  return c.json(task, StatusCode.OK);
+};
+
+export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
+  const { id } = c.req.valid("param");
+  const result = await db.delete(tasks)
+    .where(eq(tasks.id, id));
+
+  if (result.rowsAffected === 0) {
+    return c.json(
+      {
+        message: StatusCode.NOT_FOUND,
+      },
+      StatusCode.NOT_FOUND,
+    );
+  }
+
+  return c.body(null, StatusCode.NO_CONTENT);
+};

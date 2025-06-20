@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "node ./dist/src/index.js",
+    "generate:migrations": "LOG_LEVEL=info DATABASE_URL=postgres://postgres:password@db:5432/hono drizzle-kit generate",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "npm run lint --fix",
@@ -37,10 +38,11 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.14.1",
+    "@testcontainers/postgresql": "^11.0.3",
     "@types/node": "^22.15.32",
     "@types/pg": "^8.15.4",
     "cross-env": "^7.0.3",
-    "drizzle-kit": "^0.24.2",
+    "drizzle-kit": "^0.31",
     "eslint": "^9.29.0",
     "eslint-plugin-format": "^1.0.1",
     "tsc-alias": "^1.8.16",

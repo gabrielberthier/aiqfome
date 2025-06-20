@@ -1,0 +1,22 @@
+services:
+  deno-app:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DENO_ENV=DEV
+      - DATABASE_URL=postgres://postgres:password@db:5432/hono
+      - PORT=8000
+    depends_on:
+      - db
+  db:
+    image: postgres:alpine
+    container_name: db
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: hono
+    ports:
+      - "5432:5432"
