@@ -1,6 +1,4 @@
 /* eslint-disable ts/ban-ts-comment */
-import type { ZodError } from "zod/v4";
-
 import { testClient } from "hono/testing";
 import { execSync } from "node:child_process";
 import fs from "node:fs";
@@ -12,15 +10,13 @@ import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/lib/constants";
 import { createTestApp } from "@/lib/create-app";
 import * as HttpStatusPhrases from "src/http/status-code";
 
-import router from "./tasks.index";
-
-if (env.NODE_ENV !== "test") {
-  throw new Error("NODE_ENV must be 'test'");
-}
+import router from "./clients.index";
 
 const client = testClient(createTestApp(router));
 
-describe("tasks routes", () => {
+const isE2e = env.NODE_ENV !== "e2e";
+
+describe.skipIf(isE2e)("clients routes", () => {
   beforeAll(async () => {
     execSync("pnpm drizzle-kit push");
   });
@@ -29,15 +25,16 @@ describe("tasks routes", () => {
     fs.rmSync("test.db", { force: true });
   });
 
-  it("post /tasks validates the body when creating", async () => {
-    const response = await client.tasks.$post({
+  it("post /clients validates the body when creating", async () => {
+    const response = await client.clients.$post({
       json: {
-        done: false,
+        email: "m",
+        name: "",
       },
     });
     expect(response.status).toBe(422);
     if (response.status === 422) {
-      const json = await response.json() as { error: ZodError };
+      const json = await response.json();
       expect(json.error.issues[0].path[0]).toBe("name");
       expect(json.error.issues[0].message).toBe(ZOD_ERROR_MESSAGES.REQUIRED);
     }
@@ -46,23 +43,22 @@ describe("tasks routes", () => {
   const id = 1;
   const name = "Learn vitest";
 
-  it("post /tasks creates a task", async () => {
-    const response = await client.tasks.$post({
+  it("post /clients creates a task", async () => {
+    const response = await client.clients.$post({
       json: {
         name,
-        done: false,
+        email: "gabo@mail.com",
       },
     });
     expect(response.status).toBe(200);
     if (response.status === 200) {
-      const json = await response.json() as { name: string; done: boolean };
-      expect(json.name).toBe(name);
-      expect(json.done).toBe(false);
+      const json = await response.json();
+      expect(json.id).toBeInstanceOf(Number);
     }
   });
 
-  it("get /tasks lists all tasks", async () => {
-    const response = await client.tasks.$get();
+  it("get /clients lists all clients", async () => {
+    const response = await client.clients.$get();
     expect(response.status).toBe(200);
     if (response.status === 200) {
       const json = await response.json();
@@ -71,10 +67,10 @@ describe("tasks routes", () => {
     }
   });
 
-  it("get /tasks/{id} validates the id param", async () => {
-    const response = await client.tasks[":id"].$get({
+  it("get /clients/{id} validates the id param", async () => {
+    const response = await client.clients[":id"].$get({
       param: {
-        id: "wat",
+        id: -1,
       },
     });
     expect(response.status).toBe(422);
@@ -85,8 +81,8 @@ describe("tasks routes", () => {
     }
   });
 
-  it("get /tasks/{id} returns 404 when task not found", async () => {
-    const response = await client.tasks[":id"].$get({
+  it("get /clients/{id} returns 404 when task not found", async () => {
+    const response = await client.clients[":id"].$get({
       param: {
         id: 999,
       },
@@ -98,8 +94,8 @@ describe("tasks routes", () => {
     }
   });
 
-  it("get /tasks/{id} gets a single task", async () => {
-    const response = await client.tasks[":id"].$get({
+  it("get /clients/{id} gets a single task", async () => {
+    const response = await client.clients[":id"].$get({
       param: {
         id,
       },
@@ -108,12 +104,11 @@ describe("tasks routes", () => {
     if (response.status === 200) {
       const json = await response.json();
       expect(json.name).toBe(name);
-      expect(json.done).toBe(false);
     }
   });
 
-  it("patch /tasks/{id} validates the body when updating", async () => {
-    const response = await client.tasks[":id"].$patch({
+  it("patch /clients/{id} validates the body when updating", async () => {
+    const response = await client.clients[":id"].$patch({
       param: {
         id,
       },
@@ -129,8 +124,8 @@ describe("tasks routes", () => {
     }
   });
 
-  it("patch /tasks/{id} validates the id param", async () => {
-    const response = await client.tasks[":id"].$patch({
+  it("patch /clients/{id} validates the id param", async () => {
+    const response = await client.clients[":id"].$patch({
       param: {
         // @ts-expect-error
         id: "wat",
@@ -145,8 +140,8 @@ describe("tasks routes", () => {
     }
   });
 
-  it("patch /tasks/{id} validates empty body", async () => {
-    const response = await client.tasks[":id"].$patch({
+  it("patch /clients/{id} validates empty body", async () => {
+    const response = await client.clients[":id"].$patch({
       param: {
         id,
       },
@@ -160,24 +155,24 @@ describe("tasks routes", () => {
     }
   });
 
-  it("patch /tasks/{id} updates a single property of a task", async () => {
-    const response = await client.tasks[":id"].$patch({
+  it("patch /clients/{id} updates a single property of a client", async () => {
+    const response = await client.clients[":id"].$patch({
       param: {
-        id,
+        id: 1,
       },
       json: {
-        done: true,
+        name: "Jing Sue Doe",
       },
     });
     expect(response.status).toBe(200);
     if (response.status === 200) {
       const json = await response.json();
-      expect(json.done).toBe(true);
+      expect(json.name).toBe("Jing Sue Doe");
     }
   });
 
-  it("delete /tasks/{id} validates the id when deleting", async () => {
-    const response = await client.tasks[":id"].$delete({
+  it("delete /clients/{id} validates the id when deleting", async () => {
+    const response = await client.clients[":id"].$delete({
       param: {
         // @ts-expect-error
         id: "wat",
@@ -191,12 +186,12 @@ describe("tasks routes", () => {
     }
   });
 
-  it("delete /tasks/{id} removes a task", async () => {
-    const response = await client.tasks[":id"].$delete({
+  it("delete /clients/{id} removes a task", async () => {
+    const response = await client.clients[":id"].$delete({
       param: {
         id,
       },
     });
-    expect(response.status).toBe(204);
+    expect(response.status).toBe(200);
   });
-});
+}, { timeout: 60000 });

@@ -2,8 +2,8 @@ import { eq } from "drizzle-orm";
 
 import type { AppRouteHandler } from "@/lib/types";
 
-import { user } from "@/db/pg/db/schema";
 import { db } from "@/db/pg/db";
+import { client } from "@/db/pg/db/schema";
 import { ZOD_ERROR_CODES } from "@/lib/constants";
 import * as StatusCode from "src/http/status-code";
 
@@ -16,21 +16,24 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
   const task = c.req.valid("json");
-  const [inserted] = await db.insert(user).values({
-
+  const [inserted] = await db.insert(client).values({
+    email: task.email,
+    name: task.name,
   }).returning();
   return c.json(inserted, StatusCode.OK);
 };
 
 export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
   const { id } = c.req.valid("param");
-  const task = await db.query.tasks.findFirst({
+  const client = await db.query.client.findFirst({
     where(fields, operators) {
       return operators.eq(fields.id, id);
     },
   });
 
-  if (!task) {
+  console.log(client);
+
+  if (!client) {
     return c.json(
       {
         message: "NotFound",
@@ -39,14 +42,14 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
     );
   }
 
-  return c.json(task, StatusCode.OK);
+  return c.json(client, StatusCode.OK);
 };
 
 export const patch: AppRouteHandler<PatchRoute> = async (c) => {
   const { id } = c.req.valid("param");
   const updates = c.req.valid("json");
 
-  if (Object.keys(updates).length === 0) {
+  if (!updates || Object.keys(updates).length === 0) {
     return c.json(
       {
         success: false,
@@ -65,9 +68,9 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
     );
   }
 
-  const [task] = await db.update(tasks)
+  const [task] = await db.update(client)
     .set(updates)
-    .where(eq(tasks.id, id))
+    .where(eq(client.id, id))
     .returning();
 
   if (!task) {
@@ -84,10 +87,10 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
 
 export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
   const { id } = c.req.valid("param");
-  const result = await db.delete(tasks)
-    .where(eq(tasks.id, id));
+  const result = await db.delete(client)
+    .where(eq(client.id, id));
 
-  if (result.rowsAffected === 0) {
+  if (result.rowCount === 0) {
     return c.json(
       {
         message: StatusCode.NOT_FOUND,
