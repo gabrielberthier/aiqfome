@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.15.0",
+    "@flydotio/dockerfile": "^0.7.10",
     "@testcontainers/postgresql": "^11.0.3",
     "@types/node": "^22.15.32",
     "@types/pg": "^8.15.4",
