@@ -4,12 +4,15 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
 import { requestId } from "hono/request-id";
 
+import env from "@/env";
 import { defaultHook } from "@/http/openapi";
 import { pinoLogger } from "@/middlewares/pino-logger";
 
 import type { AppBindings, AppOpenAPI } from "./types";
 
 import { ErrorHandler } from "./error-handler";
+
+export const allowedOrigins = env.ALLOWED_ORIGINS?.split(",") || [];
 
 export function createRouter() {
   return new OpenAPIHono<AppBindings>({

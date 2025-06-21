@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
     decimal,
     pgTable,
@@ -5,6 +6,8 @@ import {
     timestamp,
     varchar,
 } from "drizzle-orm/pg-core";
+
+import productRating from "./product-rating";
 
 const product = pgTable("products", {
     id: serial("id").primaryKey(),
@@ -14,5 +17,9 @@ const product = pgTable("products", {
     createdAt: timestamp("created_at", { mode: "string" }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { mode: "string" }).notNull().defaultNow(),
 });
+
+export const productRelations = relations(product, ({ one }) => ({
+    rating: one(productRating),
+}));
 
 export default product;

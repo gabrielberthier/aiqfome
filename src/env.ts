@@ -19,6 +19,9 @@ const EnvSchema = z.object({
   DATABASE_AUTH_TOKEN: z.string().optional(),
   DB_MIGRATING: z.coerce.boolean(),
   DB_SEEDING: z.coerce.boolean(),
+  BETTER_AUTH_SECRET: z.coerce.string().optional(),
+  BETTER_AUTH_URL: z.coerce.string().optional(),
+  ALLOWED_ORIGINS: z.coerce.string().optional(),
 }).superRefine((input, ctx) => {
   if (input.NODE_ENV === "production" && !input.DATABASE_AUTH_TOKEN) {
     ctx.addIssue({

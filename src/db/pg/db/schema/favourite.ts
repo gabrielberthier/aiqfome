@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import { integer, pgTable, serial } from "drizzle-orm/pg-core";
 
 import client from "./client";
@@ -14,5 +15,10 @@ const favourite = pgTable("favourites", {
         onDelete: "cascade",
     }),
 });
+
+export const favouriteRelations = relations(favourite, ({ one }) => ({
+    product: one(product),
+    client: one(client),
+}));
 
 export default favourite;

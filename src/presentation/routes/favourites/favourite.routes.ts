@@ -1,22 +1,37 @@
 import { createRoute, z } from "@hono/zod-openapi";
 
-import { jsonContent, jsonContentRequired } from "@/http/openapi/helpers";
+import { jsonContent } from "@/http/openapi/helpers";
 import { createErrorSchema, IdParamsSchema } from "@/http/openapi/schemas";
 import { notFoundSchema } from "@/lib/constants";
-import { clientSchema, patchClientSchema } from "@/presentation/validation/client.schema";
+import { favouriteSchema } from "@/presentation/validation/favourite.schema";
 import * as HttpStatusCodes from "src/http/status-code";
 
 const tags = ["Clients"];
-const defaultPath = "/clients";
+const defaultPath = "/clients/{userId}/favourites";
+
+const UserIdParamsSchema = z.object({
+  userId: z.coerce.number().openapi({
+    param: {
+      name: "userId",
+      in: "path",
+      required: true,
+    },
+    required: ["userId"],
+    example: 42,
+  }),
+});
 
 export const list = createRoute({
   path: defaultPath,
   method: "get",
   tags,
+  request: {
+    params: UserIdParamsSchema,
+  },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      z.array(clientSchema),
-      "The list of clients",
+      z.array(favouriteSchema),
+      "The list of the clients favourites",
     ),
   },
 });
@@ -25,10 +40,11 @@ export const create = createRoute({
   path: defaultPath,
   method: "post",
   request: {
+    params: UserIdParamsSchema,
     body: {
       content: {
         "application/json": {
-          schema: clientSchema,
+          schema: favouriteSchema,
         },
       },
       required: true,
@@ -36,20 +52,15 @@ export const create = createRoute({
   },
   tags,
   responses: {
-    [HttpStatusCodes.OK]: jsonContent(
-      z.object({
-        id: z.number(),
-      }),
-      "The created client",
+    [HttpStatusCodes.NO_CONTENT]: {
+      description: "Created successfuly",
+    },
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(favouriteSchema),
+      "The validation error(s)",
     ),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(
-      z.object({
-        email: z.string(),
-      }),
-      "The client already exists",
-    ),
-    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createErrorSchema(clientSchema),
+      createErrorSchema(favouriteSchema),
       "The validation error(s)",
     ),
   },
@@ -59,17 +70,20 @@ export const getOne = createRoute({
   path: `${defaultPath}/{id}`,
   method: "get",
   request: {
-    params: IdParamsSchema,
+    params: z.object({
+      ...UserIdParamsSchema.shape,
+      ...IdParamsSchema.shape,
+    }),
   },
   tags,
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      clientSchema,
+      favouriteSchema,
       "The requested client",
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
-      "Client not found",
+      "Favourite not found",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(IdParamsSchema),
@@ -78,49 +92,20 @@ export const getOne = createRoute({
   },
 });
 
-export const patch = createRoute({
-  path: `${defaultPath}/{id}`,
-  method: "patch",
-  request: {
-    params: IdParamsSchema,
-    body: jsonContentRequired(
-      patchClientSchema,
-      "The client updates",
-    ),
-  },
-  tags,
-  responses: {
-    [HttpStatusCodes.OK]: jsonContent(
-      clientSchema,
-      "The updated client",
-    ),
-    [HttpStatusCodes.NOT_FOUND]: jsonContent(
-      notFoundSchema,
-      "Client not found",
-    ),
-    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createErrorSchema(patchClientSchema)
-        .or(createErrorSchema(IdParamsSchema)),
-      "The validation error(s)",
-    ),
-  },
-});
-
 export const remove = createRoute({
   path: `${defaultPath}/{id}`,
   method: "delete",
   request: {
-    params: IdParamsSchema,
+    params: z.object({
+      ...UserIdParamsSchema.shape,
+      ...IdParamsSchema.shape,
+    }),
   },
   tags,
   responses: {
     [HttpStatusCodes.NO_CONTENT]: {
-      description: "Client deleted",
+      description: "Favourite deleted",
     },
-    [HttpStatusCodes.NOT_FOUND]: jsonContent(
-      notFoundSchema,
-      "Client not found",
-    ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(IdParamsSchema),
       "Invalid id error",
@@ -131,5 +116,4 @@ export const remove = createRoute({
 export type ListRoute = typeof list;
 export type CreateRoute = typeof create;
 export type GetOneRoute = typeof getOne;
-export type PatchRoute = typeof patch;
 export type RemoveRoute = typeof remove;

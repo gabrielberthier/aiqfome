@@ -16,6 +16,10 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
   const task = c.req.valid("json");
+  const exists = await db.query.client.findFirst({ where: eq(client.email, task.email) });
+  if (exists) {
+    return c.json({ email: "Este email já está em uso" }, StatusCode.BAD_REQUEST);
+  }
   const [inserted] = await db.insert(client).values({
     email: task.email,
     name: task.name,
