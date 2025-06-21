@@ -13,7 +13,7 @@ expand(config({
 
 const EnvSchema = z.object({
   NODE_ENV: z.string().default("development"),
-  PORT: z.coerce.number().default(8000),
+  PORT: z.coerce.number().default(8080),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
   DATABASE_URL: z.string().url().default("postgres://postgres:password@localhost:5432/aiqfome"),
   DB_MIGRATING: z.coerce.boolean(),

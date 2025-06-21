@@ -23,5 +23,5 @@ primary_region = 'gru'
 
 [env]
   NODE_ENV = "production"
-  PORT = "8000"
+  PORT = "8080"
   HOST = "0.0.0.0"
