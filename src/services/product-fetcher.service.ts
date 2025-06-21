@@ -31,13 +31,9 @@ export class ProductFetcherService {
 
         const response = await fetchedProduct.json();
 
-        const result = productSchema.safeParse(JSON.parse(response));
+        const result = productSchema.parse({ ...response, productId: response.id });
 
-        if (!result.success) {
-            return null;
-        }
-
-        const data = result.data;
+        const data = result;
 
         await this.db.transaction(async (tx) => {
             const insertion = {

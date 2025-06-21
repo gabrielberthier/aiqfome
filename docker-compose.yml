@@ -1,16 +1,19 @@
 services:
-  deno-app:
+  app:
     build: .
     volumes:
       - .:/app
     ports:
       - "8000:8000"
     environment:
-      - DENO_ENV=DEV
+      - NODE_ENV=DEV
       - DATABASE_URL=postgres://postgres:password@db:5432/hono
       - PORT=8000
+      - REDIS_HOST=cache
+      - REDIS_PORT=6379
     depends_on:
       - db
+      - cache
   db:
     image: postgres:alpine
     container_name: db
@@ -21,7 +24,9 @@ services:
     ports:
       - "5432:5432"
 
-  valkey:
-    image: 'bitnami/valkey:latest'
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
+  cache:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning

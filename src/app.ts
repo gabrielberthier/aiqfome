@@ -1,8 +1,9 @@
 import { cors } from "hono/cors";
 
 import configureOpenAPI from "@/lib/configure-open-api";
-import createApp, { allowedOrigins } from "@/lib/create-app";
+import createApp from "@/lib/create-app";
 import clients from "@/presentation/routes/clients/clients.index";
+import favourites from "@/presentation/routes/favourites/favourites.index";
 import index from "@/presentation/routes/index.route";
 
 import { auth } from "./auth/auth";
@@ -14,6 +15,7 @@ configureOpenAPI(app);
 const routes = [
   index,
   clients,
+  favourites,
 ] as const;
 
 routes.forEach((route) => {
@@ -21,20 +23,8 @@ routes.forEach((route) => {
 });
 
 app.use(
-  "/api/auth/**", // or replace with "*" to enable cors for all routes
-  cors({
-    origin: (origin, _) => {
-      if (allowedOrigins.includes(origin)) {
-        return origin;
-      }
-      return undefined;
-    },
-    allowHeaders: ["Content-Type", "Authorization"],
-    allowMethods: ["POST", "GET", "OPTIONS"],
-    exposeHeaders: ["Content-Length"],
-    maxAge: 600,
-    credentials: true,
-  }),
+  "*", // or replace with "*" to enable cors for all routes
+  cors(),
 );
 
 app.on(["POST", "GET"], "/api/auth/**", (c) => {

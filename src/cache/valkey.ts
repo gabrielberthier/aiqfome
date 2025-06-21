@@ -1,6 +1,10 @@
 import { createClient } from "redis";
 
-export const valkeyClient = await createClient()
+import env from "@/env";
+
+export const valkeyClient = await createClient({
+    url: `redis://${env.REDIS_HOST}:${env.REDIS_PORT}`,
+})
     .on("error", err => console.error("Redis Client Error", err))
     .connect();
 

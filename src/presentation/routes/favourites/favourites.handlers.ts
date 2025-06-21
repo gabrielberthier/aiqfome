@@ -66,29 +66,20 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
     ).limit(1);
     if (userHasDbFavourite.length === 0) {
       const productFetcherService = new ProductFetcherService(db, valkeyClient);
-      if (productFetcherService.checkIfExists(fav.productId) === null) {
-        return c.json({
-          success: false,
-          error: {
-            message: "The product does not exist",
-          },
-          id: user,
-        }, StatusCode.BAD_REQUEST);
+      if (await productFetcherService.checkIfExists(fav.productId) === null) {
+        return c.json({ error: "Este email já está em uso" }, StatusCode.BAD_REQUEST);
       }
 
       await db.insert(favourite).values({ clientId: Number(user), productId: fav.productId });
       await valkeyClient.set(key, JSON.stringify([...hasFav, fav]));
       await valkeyClient.expire(key, 24 * 60 * 60);
 
-      return c.json({}, StatusCode.OK);
+      return c.json({ message: 'Favourite Created' }, StatusCode.OK);
     }
   }
 
   return c.json({
-    success: false,
-    error: {
-      message: "This client already has the designated favourite",
-    },
+    error: "This client already has the designated favourite",
     id: user,
   }, StatusCode.BAD_REQUEST);
 };

@@ -6,7 +6,6 @@ import { priceSchema } from "./price.schema";
 
 export const favouriteSchema = z.object({
     productId: z.number().positive(),
-    clientId: z.number().positive(),
     title: z.string().nonempty(),
     image: z.string().optional(),
     price: priceSchema,

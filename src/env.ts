@@ -22,6 +22,8 @@ const EnvSchema = z.object({
   BETTER_AUTH_SECRET: z.coerce.string().optional(),
   BETTER_AUTH_URL: z.coerce.string().optional(),
   ALLOWED_ORIGINS: z.coerce.string().optional(),
+  REDIS_HOST: z.coerce.string().optional().default("localhost"),
+  REDIS_PORT: z.coerce.string().optional().default("6379"),
 }).superRefine((input, ctx) => {
   if (input.NODE_ENV === "production" && !input.DATABASE_AUTH_TOKEN) {
     ctx.addIssue({

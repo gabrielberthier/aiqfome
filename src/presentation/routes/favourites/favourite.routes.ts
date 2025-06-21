@@ -52,16 +52,25 @@ export const create = createRoute({
   },
   tags,
   responses: {
-    [HttpStatusCodes.NO_CONTENT]: {
+    [HttpStatusCodes.OK]: {
       description: "Created successfuly",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string()
+          }),
+        },
+      },
     },
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(favouriteSchema),
       "The validation error(s)",
     ),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(
-      createErrorSchema(favouriteSchema),
-      "The validation error(s)",
+      z.object({
+        error: z.string(),
+      }),
+      "The client already exists",
     ),
   },
 });
