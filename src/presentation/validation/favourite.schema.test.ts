@@ -5,7 +5,7 @@ import { favouriteSchema } from "./favourite.schema";
 
 describe("favouriteSchema", () => {
     const validFavourite = {
-        id: 1,
+        productId: 1,
         title: "Product Title",
         image: "https://example.com/image.jpg",
         price: 99.99,
@@ -28,7 +28,7 @@ describe("favouriteSchema", () => {
 
     it("should fail if id is not positive", () => {
         expect(() => {
-            favouriteSchema.parse({ ...validFavourite, id: 0 });
+            favouriteSchema.parse({ ...validFavourite, productId: 0 });
         }).toThrow(ZodError);
     });
 
