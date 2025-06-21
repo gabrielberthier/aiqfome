@@ -7,7 +7,7 @@ services:
       - "8000:8000"
     environment:
       - NODE_ENV=DEV
-      - DATABASE_URL=postgres://postgres:password@db:5432/hono
+      - DATABASE_URL=postgres://postgres:password@db:5432/aiqfome
       - PORT=8000
       - REDIS_HOST=cache
       - REDIS_PORT=6379
@@ -20,7 +20,7 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: hono
+      POSTGRES_DB: aiqfome
     ports:
       - "5432:5432"
 

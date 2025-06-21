@@ -17,7 +17,10 @@ const favourite = pgTable("favourites", {
 });
 
 export const favouriteRelations = relations(favourite, ({ one }) => ({
-    product: one(product),
+    product: one(product, {
+        fields: [favourite.productId],
+        references: [product.id],
+    }),
     client: one(client),
 }));
 

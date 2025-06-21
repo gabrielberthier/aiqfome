@@ -14,14 +14,14 @@ import type { CreateRoute, GetOneRoute, ListRoute, RemoveRoute } from "./favouri
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   const { userId } = c.req.valid("param");
 
+
   const favouriteObjects = await db.query.favourite.findMany({
     with: {
       product: {
         with: {
-          rating: true,
-        },
-      },
-
+          rating: true
+        }
+      }
     },
     where(fields, { eq }) {
       return eq(fields.clientId, userId);
@@ -30,6 +30,7 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
 
   const toSchemas = favouriteObjects.map((favouriteObject) => {
     return {
+      id: favouriteObject.id,
       productId: favouriteObject.productId!,
       clientId: favouriteObject.clientId!,
       price: Number(favouriteObject.product?.unitPrice),
@@ -88,14 +89,14 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
   const { id } = c.req.valid("param");
   const { userId } = c.req.valid("param");
 
+
   const favouriteObject = await db.query.favourite.findFirst({
     with: {
       product: {
         with: {
-          rating: true,
-        },
-      },
-
+          rating: true
+        }
+      }
     },
     where(fields, { eq, and }) {
       return and(eq(fields.id, id), eq(fields.clientId, userId));

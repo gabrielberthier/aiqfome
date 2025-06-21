@@ -19,7 +19,10 @@ const product = pgTable("products", {
 });
 
 export const productRelations = relations(product, ({ one }) => ({
-    rating: one(productRating),
+    rating: one(productRating, {
+        fields: [product.id],
+        references: [productRating.productId],
+    }),
 }));
 
 export default product;

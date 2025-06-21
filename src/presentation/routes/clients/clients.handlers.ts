@@ -10,7 +10,7 @@ import * as StatusCode from "src/http/status-code";
 import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } from "./clients.routes";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
-  const tasks = await db.query.user.findMany();
+  const tasks = await db.query.client.findMany();
   return c.json(tasks);
 };
 
