@@ -23,6 +23,7 @@ const EnvSchema = z.object({
   ALLOWED_ORIGINS: z.coerce.string().optional(),
   REDIS_HOST: z.coerce.string().optional().default("localhost"),
   REDIS_PORT: z.coerce.string().optional().default("6379"),
+  REDIS_URL: z.coerce.string().optional()
 }).superRefine((input, ctx) => {
   // if (input.NODE_ENV === "production" && !input.DATABASE_AUTH_TOKEN) {
   //   ctx.addIssue({
